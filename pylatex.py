@@ -58,7 +58,7 @@ class LaTeX_Document(object):
 
     def AddSubSection(self, subsection_title, numbered = True):
 
-        assert(type(section_title) is str)
+        assert(type(subsection_title) is str)
         assert(type(numbered) is bool)
 
         ast = "*"
@@ -97,6 +97,8 @@ class LaTeX_Document(object):
         assert(((type(label) is str) or (label == None)))
         assert(type(numbered is bool))
 
+        if not numbered and not "*" in equation_type: equation_type += "*"
+
         line = r"\begin{" + equation_type + "}"
         if (label != None):
             line += r"\label{" + label + "}"
@@ -104,6 +106,43 @@ class LaTeX_Document(object):
         for s in equation:
             self.Content.append(s)
         self.Content.append(r"\end{" + equation_type + "}")
+
+    def AddTable(self, *args, horiz_lines = False, vert_lines = False, both_lines = False, bold_header = False, centered = True):
+        if (both_lines):
+            vert_lines = True
+            horiz_lines = True
+        lrows = len(args)
+        lcols = len(args[0])
+
+        #if (bold_header):
+        #    for i in range(len(args[0])):
+        #        args[0][i] = r"\textbf{" + args[0][i] + "}"
+        
+        for a in args:
+            assert(type(a) is list)
+            assert(len(a) == lcols)
+
+        if (centered): self.Content.append(r"\begin{center}")
+            
+        line = r"\begin{tabular}{"
+        if (horiz_lines): line += "|"
+        for i in range(lcols):
+            line += "c "
+            if (horiz_lines): line += "|"
+        line += "}"
+        
+        self.Content.append(line)
+        if (vert_lines): self.Content.append(r"\hline")
+        for a in args:
+            line = ""
+            for c in a:
+                line += str(c) + "&"
+            line = line[:-1] + r"\\"
+            if (bold_header and args[0] == a): line += r"\hline"
+            self.Content.append(line)
+            if (vert_lines): self.Content.append(r"\hline")
+        self.Content.append(r"\end{tabular}")
+        if (centered): self.Content.append(r"\end{center}")
 
     def AddNomenclature(self, symbol, description, prefix = None):
         line = r"\nomenclature"
@@ -120,6 +159,7 @@ class LaTeX_Document(object):
         tex.append(r"\usepackage{amsmath}")
         tex.append(r"\usepackage{amssymb}")
         tex.append(r"\usepackage{amsfonts}")
+        tex.append(r"\usepackage[english]{babel}")
         tex.append(r"\usepackage[left = 1in, right = 1in]{geometry}")
         tex.append(r"\usepackage{graphicx}")
         tex.append(r"")
@@ -186,6 +226,8 @@ def TeX_Replace(string, *args):
     assert(string.count("##") == len(args))
 
     for a in args:
-        string.replace("##", a, 1)
+        if (type(a) is float):
+            a = "{:.3f}".format(a)
+        string = string.replace("##", str(a), 1)
 
     return string
