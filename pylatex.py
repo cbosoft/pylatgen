@@ -146,13 +146,8 @@ class LATEX_PROTO_DOC(object):
     def ADD_EQUATION(self, equation, to, equation_type, subslist, label, numbered):
 
         if (not self.HAS_EQUATION): self.HAS_EQUATION = True
-        
-        if (type(equation) is str):
-            equation = [equation]
-        elif (type(equation) is list):
-            assert(type(equation[0]) is str)
-        else:
-            assert(type(equation) is str)  # will fail
+    
+        assert(type(equation) is str)
         assert(type(equation_type) is str)
         assert(((type(subslist) is list) or (subslist == None)))
         assert(((type(label) is str) or (label == None)))
@@ -161,11 +156,15 @@ class LATEX_PROTO_DOC(object):
 
         if (subslist):
             assert(type(subslist) is list)
-            # assert(len(subslist) == equation.count('#'))
-            vardexlist = [i for i, ltr in enumerate(equation) if ltr == '#']
+            vardexlist = [(i + 1) for i, ltr in enumerate(equation) if ltr == "#"]
+            idxoff = 0
             for idx in vardexlist:
-                vardex = int(equation[(idx + 1):(idx + 2)])
-                equation = equation.replace("#{}".format(varn), subslist[vardex])
+                i = idx + idxoff
+                vardex = int(equation[i])
+                val = str(subslist[vardex])
+                idxoff += len(val) - 2
+                equation = equation.replace("#{}".format(vardex), val)
+                #print("EQN: replaced {} with {}".format("#{}".format(vardex), str(subslist[vardex])))
         else:
             assert(not equation.count('#'))
             
@@ -175,8 +174,7 @@ class LATEX_PROTO_DOC(object):
         if (label != None):
             line += r"\label{" + label + "}"
         to.append(line)
-        for s in equation:
-            to.append(s)
+        to.append(equation)
         to.append(r"\end{" + equation_type + "}")
 
     def ADD_TABLE(self, *args, to = None, horiz_lines = False, vert_lines = False, both_lines = False, bold_header = False, centered = True):
@@ -377,7 +375,7 @@ class LATEX_PROTO_DOC(object):
 
         return tex
 
-    def Output(self):
+    def Output(self, output_name):
         if output_name[-4:] == ".tex":
             output_name = output_name[:-4]
         self.OutputName = output_name
