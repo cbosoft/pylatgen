@@ -6,7 +6,7 @@ PyLatGen is a collection of python classes which represent LaTeX documents (`art
 
 # Example Usage
 ```python
-from pylatex import *
+from pylatgen import *
 
 r = LaTeX_Article()
 
@@ -35,9 +35,17 @@ r.AddParagraph(r"Equation \ref{pythagoras_theorem} is an example of an equation.
 r.AddEquation(r"a^2 = b^2 + c^2 = #0^2 + #1^2 = #2 + #3 = #4", label = "pythagoras_theorem_filled", subslist = [3, 4, 9, 16, 25])
 r.AddParagraph(r"Hash symbols (\#) followed by an integer indicates a substitution.")
 
-# You can add appendices too
+# You can add appendices
 r.AppendixAddSection("Appendix A", numbered = False)
 r.AppendixAddParagraph("Appendices can be added at any point, they will always be at the end of the document.")
+
+# You can add tables too
+# Each row of the table is taken in as a python list
+headerrow = ["Name", "Job title"]
+row1 = ["Alice", "Software Engineer"]
+row2 = ["Bob", "Technician"]
+row3 = ["Dave", "Sys. admin"]
+r.AddTable(headerrow, row1, row2, row3, bold_header = True)
 
 # When you're done, write it out or compile it (or both)
 r.Output("report")  # No need to add '.tex' to the file name, but it doesn't matter if you do.
