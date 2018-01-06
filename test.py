@@ -1,7 +1,8 @@
 from pylatex import *
 
-r = LaTeX_Document()
+r = LaTeX_Article()
 r.AddParagraph(r"Hello, World!")
 
-r.Output("test.tex")
-r.Compile()
+s = r.GetTeX()
+# r.Output("test.tex")
+# r.Compile()
