@@ -17,9 +17,8 @@ r.Date = "January 2018"
 r.MakeTitle()
 
 # If stuff stops working, or you want more information about the compilation,
-# use the debug method. By default very little output is shown when the pdf
-# is created.
-r.Debug()
+# turn on debug mode to show more information.
+# r.Debug()
 
 r.AddSection("Introduction")
 r.AddParagraph("PyLaTeX is an easy way to build up a write up at the same time as the calculation. It has similar features to a simple \LaTeX document.")
