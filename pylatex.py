@@ -3,14 +3,75 @@
 import subprocess as sp
 from enum import Enum
 
+######################################################################################################
+####### Enums ########################################################################################
+
 class LaTeX_DocType(Enum):
     ARTICLE = "article"
     REPORT = "report"
     BOOK = "book"
 
-class LaTeX_Document(object):
+class LaTeX_SecType(Enum):
+    CHAPTER = "chapter"
+    SECTION = "section"
+    SUBSECTION = "subsection"
+    SUBSUBSECTION = "subsubsection"
+    PARAGRAPH = "par"
 
-    def __init__(self, title = "", doctype = LaTeX_DocType.ARTICLE, bibfile = "", bibstyle = "apalike", author = "", date = " ", extra_preamble = list()):
+######################################################################################################
+####### Exceptions ###################################################################################
+
+class GenericDocException(Exception):
+    '''Raised when I can't think of a better category to put it in'''
+    
+class InvalidDocException(Exception):
+    '''Raised when user is trying to do something in the wrong document class'''
+
+class UnimplementedMethodException(Exception):
+    '''Raised when a prototype unwritten exception is called'''
+
+######################################################################################################
+####### Packages and Settings ########################################################################
+
+class LATEX_FIGURE(object):
+    Width = None
+    Scale = None
+    Height = None
+
+    def __repr__(self):
+        rv = "["
+        setts = [self.Width, self.Scale, self.Height]
+        for sett in setts:
+            if (sett != None):
+                rv += str(sett) + ","
+        if (rv == "["):
+            return ""
+        else:
+            return rv + "]"
+
+class LATEX_GEOMETRY(object):
+    Left = 72
+    Right = 72
+    Top = None
+    Bottom = None
+
+    def __repr__(self):
+        rv = "["
+        setts = [self.Left, self.Right, self.Top, self.Bottom]
+        for sett in setts:
+            if (sett != None):
+                rv += str(sett) + ","
+        if (rv == "["):
+            return ""
+        else:
+            return rv + "]"
+
+class LATEX_PROTO_DOC(object):
+
+    ###################################################################################################
+    #### Dunder Methods ###############################################################################
+    
+    def __init__(self, title = "", bibfile = "", bibstyle = "apalike", author = "", date = " ", extra_preamble = list()):
         # General properties of the document
         self.Title = title
         if (bibfile != ""):
@@ -19,90 +80,73 @@ class LaTeX_Document(object):
         else:
             self.Bibfile = False
             self.Bibstyle = False
-        self.Type = doctype.value
+        self.Type = "report" # by default
         self.Author = author
         self.Date = date
         self.Content = list()
         self.ExtraPreamble = extra_preamble
 
-        # Document switches
-        self.maketitle = False
-        self.indentparagraphs = True
-        self.doublespaceparagraphs = False
-
-        # Meta switches
+        # Switches
+        self.MAKETITLE = False
+        self.INDENT_PARS = True
         self.DEBUG = False
+
+        self.HAS_EQUATION = False
+        self.HAS_FIGURE = False
+        self.HAS_SUBFIGURE = False
         self.HAS_NOMENCLATURE = False
         self.HAS_APPENDIX = False
-        
 
+        # Package Settings
+        self.Geometry = LATEX_GEOMETRY()
+        self.DefaultFigure = LATEX_FIGURE()
+        
     def __repr__(self):
         rv = "LaTeX " + self.Type.capitalize() + " (" + str(len(self.Content)) + " ish lines)"
         return rv
 
     ###################################################################################################
     #### Settings #####################################################################################
+    
     def MakeTitle(self):
-        self.maketitle = True
+        self.MAKETITLE = True
 
     def Debug(self):
         self.debug = True
 
     ###################################################################################################
-    ### General methods ###############################################################################
-    def ADD_CHAPTER(self, chapter_title, to, numbered = True):
+    #### Add Methods ##################################################################################
 
-        assert(type(chapter_title) is str)
-        assert(type(numbered) is bool)
-        assert(type(to) is list)
+    def ADD(self, what, to, add_type, numbered):
 
         ast = "*"
         if numbered: ast = ""
-        to.append(r"\chapter" + ast + "{" + chapter_title + "}")
+        line = what
+        if add_type != LaTeX_SecType.PARAGRAPH:
+            line = "\\" + add_type.value + ast + "{" + what + "}"
+        elif (not self.INDENT_PARS):
+            to.append(r"\noindent")
+        to.append(line)
 
-    def ADD_SECTION(self, section_title, to, numbered = True):
+    def ADD_CHAPTER(self, chapter_title, to, numbered):
+        self.ADD(chapter_title, to, LaTeX_SecType.CHAPTER, numbered)
 
-        assert(type(section_title) is str)
-        assert(type(numbered) is bool)
-        assert(type(to) is list)
+    def ADD_SECTION(self, section_title, to, numbered):
+        self.ADD(section_title, to, LaTeX_SecType.SECTION, numbered)
 
-        ast = "*"
-        if numbered: ast = ""
-        to.append(r"\section" + ast + "{" + section_title + "}")
+    def ADD_SUBSECTION(self, section_title, to, numbered):
+        self.ADD(section_title, to, LaTeX_SecType.SUBSECTION, numbered)
 
-    def ADD_SUBSECTION(self, subsection_title, to, numbered = True):
-
-        assert(type(subsection_title) is str)
-        assert(type(numbered) is bool)
-        assert(type(to) is list)
-
-        ast = "*"
-        if numbered: ast = ""
-        to.append(r"\subsection" + ast + "{" + subsection_title + "}")
-
-    def ADD_SUBSUBSECTION(self, subsubsection_title, to, numbered = True):
-
-        assert(type(subsubsection_title) is str)
-        assert(type(numbered) is bool)
-        assert(type(to) is list)
-
-        ast = "*"
-        if numbered: ast = ""
-        to.append(r"\subsubsection" + ast + "{" + subsubsection_title + "}")
+    def ADD_SUBSUBSECTION(self, section_title, to, numbered):
+        self.ADD(section_title, to, LaTeX_SecType.SUBSUBSECTION, numbered)
 
     def ADD_PARAGRAPH(self, paragraph, to):
+        self.ADD(paragraph, to, LaTeX_SecType.PARAGRAPH, None)
 
-        assert(type(paragraph) is str)
+    def ADD_EQUATION(self, equation, to, equation_type, subslist, label, numbered):
 
-        if (self.doublespaceparagraphs):
-            to.append(r"\newline\newline")
-        if (not self.indentparagraphs):
-            to.append(r"\noindent")
-        to.append(paragraph)
-        to.append("")
+        if (not self.HAS_EQUATION): self.HAS_EQUATION = True
         
-    def ADD_EQUATION(self, equation, to, equation_type="equation", label = None, numbered = True):
-
         if (type(equation) is str):
             equation = [equation]
         elif (type(equation) is list):
@@ -110,10 +154,21 @@ class LaTeX_Document(object):
         else:
             assert(type(equation) is str)  # will fail
         assert(type(equation_type) is str)
+        assert(((type(subslist) is list) or (subslist == None)))
         assert(((type(label) is str) or (label == None)))
         assert(type(numbered is bool))
         assert(type(to) is list)
 
+        if (subslist):
+            assert(type(subslist) is list)
+            # assert(len(subslist) == equation.count('#'))
+            vardexlist = [i for i, ltr in enumerate(equation) if ltr == '#']
+            for idx in vardexlist:
+                vardex = int(equation[(idx + 1):(idx + 2)])
+                equation = equation.replace("#{}".format(varn), subslist[vardex])
+        else:
+            assert(not equation.count('#'))
+            
         if not numbered and not "*" in equation_type: equation_type += "*"
 
         line = r"\begin{" + equation_type + "}"
@@ -164,6 +219,35 @@ class LaTeX_Document(object):
         to.append(r"\end{tabular}")
         if (centered): to.append(r"\end{center}")
 
+    def ADD_FIGURE(self, figpath, caption, label, to, figsettings):
+
+        if not self.HAS_FIGURE: self.HAS_FIGURE = True
+
+        assert(type(figpath) is type(caption))
+        assert(type(figpath) is type(label))
+        assert(((type(figsettings) is LATEX_FIGURE) or (figsettings == None)))
+        assert(type(to) is list)
+
+        settings = str(self.DefaultFigure)
+        if (figsettings): settings = str(figsettings)
+
+        to.append(r"\begin{figure}")
+        to.append(r"\centering")
+        if (type(figpath) is list):
+            if not self.HAS_SUBFIGURE: self.HAS_SUBFIGURE = True
+            for figp, cap, lab in zip(figpath, caption, label):
+                to.append(r"\begin{subfigure}")
+                to.append(r"\centering")
+                to.append(r"\includegraphics" + settings + "{" + figp + "}")
+                if caption: to.append(r"\caption{" + cap + "}")
+                if label: to.append(r"\label{" + lab + "}")
+                to.append(r"\end{subfigure}")
+        else:
+            to.append(r"\includegraphics" + settings + "{" + figpath + "}")
+            if caption: to.append(r"\caption{" + caption + "}")
+            if label: to.append(r"\label{" + label + "}")
+        to.append(r"\end{figure}")
+
     def ADD_NOMENCLATURE(self, symbol, description, to, prefix = None):
         line = r"\nomenclature"
         if (prefix != None):
@@ -195,6 +279,9 @@ class LaTeX_Document(object):
         
     def AddTable(self, *args, horiz_lines = False, vert_lines = False, both_lines = False, bold_header = False, centered = True):
         self.ADD_TABLE(*args, to = self.Content, horiz_lines = False, vert_lines = False, both_lines = False, bold_header = False, centered = True)
+
+    def AddFigure(self, figpath, caption = None, label = None, figsettings = None):
+        self.ADD_FIGURE(self, figpath, caption, label, self.Content, figsettings)
         
     def AddNomenclature(self, symbol, description, prefix = None):
         self.ADD_NOMENCLATURE(symbol, description, self.Content, prefix = None)
@@ -235,22 +322,30 @@ class LaTeX_Document(object):
         self.APPENDIX_INIT()
         self.ADD_TABLE(*args, to = self.AppendixContent, horiz_lines = False, vert_lines = False, both_lines = False, bold_header = False, centered = True)
         
+    def AppendixAddFigure(self, figpath, caption = None, label = None, figsettings = None):
+        self.ADD_FIGURE(self, figpath, caption, label, self.AppendixContent, figsettings)
+        
     def AppendixAddNomenclature(self, symbol, description, prefix = None):
         self.APPENDIX_INIT()
         self.ADD_NOMENCLATURE(symbol, description, self.AppendixContent, prefix = None)
-
+        
     ###################################################################################################
-    ### Outpute + Build Methods #######################################################################
+    #### Build + Compile Methods ######################################################################
+    
     def GetTeX(self):
         tex = list()
         tex.append(r"\documentclass{" + self.Type + "}")
         if not self.DEBUG: tex.append(r"\batchmode") # reduces compiler output
-        tex.append(r"\usepackage{amsmath}")
-        tex.append(r"\usepackage{amssymb}")
-        tex.append(r"\usepackage{amsfonts}")
+        if self.HAS_EQUATION:
+            tex.append(r"\usepackage{amsmath}")
+            tex.append(r"\usepackage{amssymb}")
+            tex.append(r"\usepackage{amsfonts}")
         tex.append(r"\usepackage[english]{babel}")
-        tex.append(r"\usepackage[left = 1in, right = 1in]{geometry}")
-        tex.append(r"\usepackage{graphicx}")
+        tex.append(r"\usepackage" + str(self.Geometry) + "{geometry}")
+        if self.HAS_FIGURE: tex.append(r"\usepackage{graphicx}")
+        if self.HAS_SUBFIGURE:
+            tex.append(r"\usepackage{caption}")
+            tex.append(r"\usepackage{subcaption}")
         tex.append(r"")
         tex.append(r"\title{" + self.Title + "}")
         tex.append(r"\author{" + self.Author + "}")
@@ -262,7 +357,7 @@ class LaTeX_Document(object):
         
         tex.append(r"\begin{document}")
 
-        if (self.maketitle): tex.append(r"\maketitle")
+        if (self.MAKETITLE): tex.append(r"\maketitle")
 
         for s in self.Content:
            tex.append(s)
@@ -282,14 +377,13 @@ class LaTeX_Document(object):
 
         return tex
 
-    def Output(self, output_name):
+    def Output(self):
         if output_name[-4:] == ".tex":
             output_name = output_name[:-4]
         self.OutputName = output_name
         lines = self.GetTeX()
         with open(output_name + ".tex", 'w') as of:
             of.write('\n'.join(lines))
-        return 1
 
     def Compile(self):
         print("\n********************************************************")
@@ -324,14 +418,21 @@ class LaTeX_Document(object):
 
         print("\n\nTidying up....")
         sp.call("rm -rf *.aux *.log *.bbl *.blg *~ *.ilg *.nls *.nlo *.tex", shell = True)
+    
+class LaTeX_Article(LATEX_PROTO_DOC):
 
-def TeX_Replace(string, *args):
+    Type = "article"
 
-    assert(string.count("##") == len(args))
+    def AddChapter(self,  *args, **kwargs):
+        raise InvalidDocException("You cannot add a chapter to an article.")
 
-    for a in args:
-        if (type(a) is float):
-            a = "{:.3f}".format(a)
-        string = string.replace("##", str(a), 1)
+    def AppendixAddChapter(self, *args, **kwargs):
+        raise InvalidDocException("You cannot add a chapter to an article.")
 
-    return string
+class LaTeX_Report(LATEX_PROTO_DOC):
+
+    Type = "report"
+
+class LaTeX_Book(LATEX_PROTO_DOC):
+        
+    Type = "book"
