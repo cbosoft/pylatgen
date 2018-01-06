@@ -251,7 +251,6 @@ class LATEX_PROTO_DOC(object):
         if (prefix != None):
             line += "[" + prefix + "]"
         line += "{" + symbol + "}{" + description + "}"
-        print(line)
         to.append(line)
         if (not self.HAS_NOMENCLATURE): self.HAS_NOMENCLATURE = True
 
@@ -277,7 +276,7 @@ class LATEX_PROTO_DOC(object):
         self.ADD_EQUATION(equation, self.Content, equation_type, subslist, label, numbered)
         
     def AddTable(self, *args, horiz_lines = False, vert_lines = False, both_lines = False, bold_header = False, centered = True):
-        self.ADD_TABLE(*args, self.Content, horiz_lines, vert_lines, both_lines, bold_header, centered)
+        self.ADD_TABLE(*args, to = self.Content, horiz_lines = horiz_lines, vert_lines = vert_lines, both_lines = both_lines, bold_header = bold_header, centered = centered)
 
     def AddFigure(self, figpath, caption = None, label = None, figsettings = None):
         self.ADD_FIGURE(self, figpath, caption, label, self.Content, figsettings)
