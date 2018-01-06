@@ -4,21 +4,37 @@ Are you like me? Do you write lengthy python scripts to perform a calculation fr
 
 PyLaTeX is a collection of python classes which represent LaTeX documents (`article`, `report`, `book`). As you go along writing your (lengthy, complex) calculation script you can on the fly write the report/article (as you might comment your code). Then, when the script is done, the report is done too! You can have it automatically compile to pdf, or just output to .tex.
 
-# Quick Usage
+# Example Usage
 ```python
 from pylatex import *
 
 r = LaTeX_Article()
-# You can't add chapters in articles, but if `r` was a report...
-# r.AddChapter("Chaptername")
+
+# You can use the standard maketitle attributes
+r.Title = r"Example PyLaTeX Article"
+r.Author = "M. Python"
+r.Date = "January 2018"
+r.MakeTitle()
+
+# If stuff stops working, or you want more information about the compilation,
+# use the debug method. By default very little output is shown when the pdf
+# is created.
+r.Debug()
+
 r.AddSection("Introduction")
-r.AddSubsection("SubIntro")
-r.AddParagraph("Lorem ipsum etc")
+r.AddParagraph("PyLaTeX is an easy way to build up a write up at the same time as the calculation. It has similar features to a simple \LaTeX document.")
 
 # You can add equations
 r.AddEquation(r"a^2 = b^2 + c^2", label = "pythagoras_theorem")
-r.AddParagraph(r"Equation \ref{pythagoras_theorem} is an example of an equation. Equations can also have data inserted from a list of values (similar to python2's str.replace()):")
-r.AddEquation(r"a^2 = b^2 + c^2 = #0^2 + #1^2 = #2 + #3 = #4", label = "pythagoras_theorem", subslist = [3, 4, 9, 16, 25])
+
+# You can use nomenclature
+r.AddNomenclature("a", "The long side of a right-angled triangle")
+r.AddNomenclature("b", "One of the two shorter sides of a right-angled triangle")
+r.AddNomenclature("c", "One of the two shorter sides of a right-angled triangle")
+
+r.AddParagraph(r"Equation \ref{pythagoras_theorem} is an example of an equation. Equations can also have data substituted in from a list of values:")
+r.AddEquation(r"a^2 = b^2 + c^2 = #0^2 + #1^2 = #2 + #3 = #4", label = "pythagoras_theorem_filled", subslist = [3, 4, 9, 16, 25])
+r.AddParagraph(r"Hash symbols (\#) followed by an integer indicates a substitution.")
 
 # You can add appendices too
 r.AppendixAddSection("Appendix A", numbered = False)
@@ -32,11 +48,13 @@ You get the gist.
 
 # Packages
 
-Bibliographies are supported through `bibtex`
+Bibliographies are supported through `bibtex`.
 
 Equations are written in TeX math (using `amsmath`, `amsfont`, and `amssymb`).
 
-Figures can be added (`graphicx` used to add images), with subfigure support through `subcaption` (`caption` is loaded too)
+Figures can be added (`graphicx` used to add images), with subfigure support through `subcaption` (`caption` is loaded too).
+
+Nomenclature is handled by the `nomencl` package.
 
 Extra packages can be added in the `ExtraPreamble` attribute of a document. Or, indeed, anything else you could want to add into the preamble.
 
