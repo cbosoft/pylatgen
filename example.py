@@ -3,7 +3,7 @@ from pylatex import *
 r = LaTeX_Article()
 
 # You can use the standard maketitle attributes
-r.Title = r"Example PyLaTeX Article"
+r.Title = "Example PyLatGen Article"
 r.Author = "M. Python"
 r.Date = "January 2018"
 r.MakeTitle()
@@ -13,7 +13,7 @@ r.MakeTitle()
 # r.Debug()
 
 r.AddSection("Introduction")
-r.AddParagraph("PyLaTeX is an easy way to build up a write up at the same time as the calculation. It has similar features to a simple \LaTeX document.")
+r.AddParagraph("PyLatGen is an easy way to build up a write up at the same time as the calculation. It has similar features to a simple \LaTeX document.")
 
 # You can add equations
 r.AddEquation(r"a^2 = b^2 + c^2", label = "pythagoras_theorem")
