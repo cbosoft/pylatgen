@@ -40,14 +40,14 @@ class LATEX_FIGURE(object):
 
     def __repr__(self):
         rv = "["
-        setts = [self.Width, self.Scale, self.Height]
-        for sett in setts:
+        setts = [("width", self.Width), ("scale", self.Scale), ("height", self.Height)]
+        for opt, sett in setts:
             if (sett != None):
-                rv += str(sett) + ","
+                rv += opt + "=" + str(sett) + ","
         if (rv == "["):
             return ""
         else:
-            return rv + "]"
+            return rv[:-1] + "]"
 
 class LATEX_GEOMETRY(object):
     Left = 72
@@ -57,14 +57,14 @@ class LATEX_GEOMETRY(object):
 
     def __repr__(self):
         rv = "["
-        setts = [self.Left, self.Right, self.Top, self.Bottom]
-        for sett in setts:
+        setts = [("left", self.Left), ("right", self.Right), ("top", self.Top), ("bottom", self.Bottom)]
+        for opt, sett in setts:
             if (sett != None):
-                rv += str(sett) + ","
+                rv += opt + "=" + str(sett) + "pt,"
         if (rv == "["):
             return ""
         else:
-            return rv + "]"
+            return rv[:-1] + "]"
 
 class LATEX_PROTO_DOC(object):
 
@@ -80,7 +80,7 @@ class LATEX_PROTO_DOC(object):
         else:
             self.Bibfile = False
             self.Bibstyle = False
-        self.Type = "report" # by default
+        if not self.Type: self.Type = "report" # by default
         self.Author = author
         self.Date = date
         self.Content = list()
@@ -112,7 +112,7 @@ class LATEX_PROTO_DOC(object):
         self.MAKETITLE = True
 
     def Debug(self):
-        self.debug = True
+        self.DEBUG = True
 
     ###################################################################################################
     #### Add Methods ##################################################################################
@@ -251,6 +251,7 @@ class LATEX_PROTO_DOC(object):
         if (prefix != None):
             line += "[" + prefix + "]"
         line += "{" + symbol + "}{" + description + "}"
+        print(line)
         to.append(line)
         if (not self.HAS_NOMENCLATURE): self.HAS_NOMENCLATURE = True
 
@@ -332,6 +333,7 @@ class LATEX_PROTO_DOC(object):
     
     def GetTeX(self):
         tex = list()
+        print(self.Type)
         tex.append(r"\documentclass{" + self.Type + "}")
         if not self.DEBUG: tex.append(r"\batchmode") # reduces compiler output
         if self.HAS_EQUATION:
@@ -344,6 +346,9 @@ class LATEX_PROTO_DOC(object):
         if self.HAS_SUBFIGURE:
             tex.append(r"\usepackage{caption}")
             tex.append(r"\usepackage{subcaption}")
+        if self.HAS_NOMENCLATURE:
+            tex.append(r"\usepackage{nomencl}")
+            tex.append(r"\makenomenclature")
         tex.append(r"")
         tex.append(r"\title{" + self.Title + "}")
         tex.append(r"\author{" + self.Author + "}")
@@ -404,6 +409,8 @@ class LATEX_PROTO_DOC(object):
             print("**** Nomenclature **************************************\n")
             sp.call("makeindex " + self.OutputName + ".nlo -s " + "nomencl.ist -o " + self.OutputName + ".nls", shell = True)
             rebuild = True
+
+        if (self.HAS_EQUATION): rebuild = True
             
         if (rebuild):
             print("\n\n********************************************************")
@@ -414,8 +421,9 @@ class LATEX_PROTO_DOC(object):
             print("**** Final build ***************************************\n")
             sp.call("pdflatex " + self.OutputName + ".tex", shell = True)
 
-        print("\n\nTidying up....")
-        sp.call("rm -rf *.aux *.log *.bbl *.blg *~ *.ilg *.nls *.nlo *.tex", shell = True)
+        if not self.DEBUG: 
+            print("\n\nTidying up....")
+            sp.call("rm -rf *.aux *.log *.bbl *.blg *~ *.ilg *.nls *.nlo *.tex", shell = True)
     
 class LaTeX_Article(LATEX_PROTO_DOC):
 
