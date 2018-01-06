@@ -260,31 +260,31 @@ class LATEX_PROTO_DOC(object):
     ### Document Body Methods #########################################################################
 
     def AddChapter(self, chapter_title, numbered = True):
-        self.ADD_CHAPTER(chapter_title, self.Content, numbered = numbered)
+        self.ADD_CHAPTER(chapter_title, self.Content, numbered)
         
     def AddSection(self, section_title, numbered = True):
-        self.ADD_SECTION(section_title, self.Content, numbered = True)
+        self.ADD_SECTION(section_title, self.Content, numbered)
         
     def AddSubsection(self, subsection_title, numbered = True):
-        self.ADD_SUBSECTION(subsection_title, self.Content, numbered = True)
+        self.ADD_SUBSECTION(subsection_title, self.Content, numbered)
         
     def AddSubSubSection(self, subsubsection_title, numbered = True):
-        self.ADD_SUBSUBSECTION(subsubsection_title, self.Content, numbered = True)
+        self.ADD_SUBSUBSECTION(subsubsection_title, self.Content, numbered )
         
     def AddParagraph(self, paragraph):
         self.ADD_PARAGRAPH(paragraph, self.Content)
-        
-    def AddEquation(self, equation, equation_type="equation", label = None, numbered = True):
-        self.ADD_EQUATION(equation, self.Content, equation_type="equation", label = None, numbered = True)
+                  #(self, equation, to, equation_type, subslist, label, numbered)
+    def AddEquation(self, equation, equation_type="equation", subslist = None, label = None, numbered = True):
+        self.ADD_EQUATION(equation, self.Content, equation_type, subslist, label, numbered)
         
     def AddTable(self, *args, horiz_lines = False, vert_lines = False, both_lines = False, bold_header = False, centered = True):
-        self.ADD_TABLE(*args, to = self.Content, horiz_lines = False, vert_lines = False, both_lines = False, bold_header = False, centered = True)
+        self.ADD_TABLE(*args, to = self.Content, horiz_lines, vert_lines, both_lines, bold_header, centered)
 
     def AddFigure(self, figpath, caption = None, label = None, figsettings = None):
         self.ADD_FIGURE(self, figpath, caption, label, self.Content, figsettings)
         
     def AddNomenclature(self, symbol, description, prefix = None):
-        self.ADD_NOMENCLATURE(symbol, description, self.Content, prefix = None)
+        self.ADD_NOMENCLATURE(symbol, description, self.Content, prefix)
     
     ###################################################################################################
     ### Appendix Methods ##############################################################################
