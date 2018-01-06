@@ -278,7 +278,7 @@ class LATEX_PROTO_DOC(object):
         self.ADD_EQUATION(equation, self.Content, equation_type, subslist, label, numbered)
         
     def AddTable(self, *args, horiz_lines = False, vert_lines = False, both_lines = False, bold_header = False, centered = True):
-        self.ADD_TABLE(*args, to = self.Content, horiz_lines, vert_lines, both_lines, bold_header, centered)
+        self.ADD_TABLE(*args, self.Content, horiz_lines, vert_lines, both_lines, bold_header, centered)
 
     def AddFigure(self, figpath, caption = None, label = None, figsettings = None):
         self.ADD_FIGURE(self, figpath, caption, label, self.Content, figsettings)
@@ -296,19 +296,19 @@ class LATEX_PROTO_DOC(object):
 
     def AppendixAddChapter(self, chapter_title, numbered = True):
         self.APPENDIX_INIT()
-        self.ADD_CHAPTER(chapter_title, self.AppendixContent, numbered = numbered)
+        self.ADD_CHAPTER(chapter_title, self.AppendixContent, numbered)
         
     def AppendixAddSection(self, section_title, numbered = True):
         self.APPENDIX_INIT()
-        self.ADD_SECTION(section_title, self.AppendixContent, numbered = True)
+        self.ADD_SECTION(section_title, self.AppendixContent, numbered)
         
     def AppendixAddSubsection(self, subsection_title, numbered = True):
         self.APPENDIX_INIT()
-        self.ADD_SUBSECTION(subsection_title, self.AppendixContent, numbered = True)
+        self.ADD_SUBSECTION(subsection_title, self.AppendixContent, numbered)
         
     def AppendixAddSubSubSection(self, subsubsection_title, numbered = True):
         self.APPENDIX_INIT()
-        self.ADD_SUBSUBSECTION(subsubsection_title, self.AppendixContent, numbered = True)
+        self.ADD_SUBSUBSECTION(subsubsection_title, self.AppendixContent, numbered)
         
     def AppendixAddParagraph(self, paragraph):
         self.APPENDIX_INIT()
@@ -316,18 +316,18 @@ class LATEX_PROTO_DOC(object):
         
     def AppendixAddEquation(self, equation, equation_type="equation", label = None, numbered = True):
         self.APPENDIX_INIT()
-        self.ADD_EQUATION(equation, self.AppendixContent, equation_type="equation", label = None, numbered = True)
+        self.ADD_EQUATION(equation, self.AppendixContent, equation_type, label, numbered)
         
     def AppendixAddTable(self, *args, horiz_lines = False, vert_lines = False, both_lines = False, bold_header = False, centered = True):
         self.APPENDIX_INIT()
-        self.ADD_TABLE(*args, to = self.AppendixContent, horiz_lines = False, vert_lines = False, both_lines = False, bold_header = False, centered = True)
+        self.ADD_TABLE(*args, self.AppendixContent, horiz_lines, vert_lines, both_lines, bold_header, centered)
         
     def AppendixAddFigure(self, figpath, caption = None, label = None, figsettings = None):
         self.ADD_FIGURE(self, figpath, caption, label, self.AppendixContent, figsettings)
         
     def AppendixAddNomenclature(self, symbol, description, prefix = None):
         self.APPENDIX_INIT()
-        self.ADD_NOMENCLATURE(symbol, description, self.AppendixContent, prefix = None)
+        self.ADD_NOMENCLATURE(symbol, description, self.AppendixContent, prefix)
         
     ###################################################################################################
     #### Build + Compile Methods ######################################################################
